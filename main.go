@@ -8,6 +8,7 @@ import (
 func main() {
 	FlagC := FBool("c", false, "treba li se ispisati")
 	FlagI := FBool("i", false, "Input necega")
+
 	AddCommand("commit", Commit, FlagC, FlagI)
 	AddCommand("add", Commit, FlagC, FlagI)
 
@@ -23,6 +24,7 @@ type Flag struct {
 }
 
 type FExecutable struct {
+	Args         []string
 	FlagsFn      map[string][]*Flag
 	FnExecutable map[string]fnCommand
 }
@@ -43,7 +45,7 @@ func FInt(flag string, defValue int, usage string) *Flag {
 	return NewFlag(flag, defValue, usage)
 }
 
-var Super *FExecutable = NewFExecutable()
+var Executable *FExecutable = NewFExecutable()
 
 func NewFExecutable() *FExecutable {
 	return &FExecutable{
@@ -58,18 +60,19 @@ func (f *FExecutable) AddCommand(command string, fn fnCommand, flags ...*Flag) {
 
 // ovo je jedna te ista komanda, ali valjda je vako ljepse za napisati, tako su developeri koju su pravili flag package napisali slicno
 func AddCommand(command string, fn fnCommand, flags ...*Flag) {
-	Super.AddCommand(command, fn, flags...)
+	Executable.AddCommand(command, fn, flags...)
 }
 
 // ===============================================================================
 func (f *FExecutable) Parser() {
 	arguments := os.Args
-	f.FnExecutable[arguments[1]](arguments)
+	f.Args = arguments[2:]
+	f.FnExecutable[arguments[1]](f.Args)
 }
 
 // manje koda za korisnika koji bude koristio ovaj tool, isti je kod, nema razlike
 func Parser() {
-	Super.Parser()
+	Executable.Parser()
 }
 
 // ===============================================================================
@@ -77,5 +80,5 @@ func Parser() {
 func Commit(args []string) {
 	//c,i := parser()
 
-	fmt.Println(args)
+	fmt.Println(Executable.Args)
 }
