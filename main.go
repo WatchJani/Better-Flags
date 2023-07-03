@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -9,8 +8,8 @@ func main() {
 	FlagC := FBool("c", false, "treba li se ispisati")
 	FlagI := FBool("i", false, "Input necega")
 
-	AddCommand("commit", Commit, FlagC, FlagI)
-	AddCommand("add", Commit, FlagC, FlagI)
+	CommandLineFunction("commit", Commit, FlagC, FlagI)
+	CommandLineFunction("add", Commit, FlagC, FlagI)
 
 	Parser()
 }
@@ -24,8 +23,8 @@ type Flag struct {
 }
 
 type FExecutable struct {
-	Args         []string
-	FlagsFn      map[string][]*Flag
+	Args         map[string]string
+	FlagsFn      map[string]map[string]*Flag
 	FnExecutable map[string]fnCommand
 }
 
@@ -49,24 +48,30 @@ var Executable *FExecutable = NewFExecutable()
 
 func NewFExecutable() *FExecutable {
 	return &FExecutable{
-		FlagsFn:      make(map[string][]*Flag),
-		FnExecutable: make(map[string]fnCommand),
+		Args:         make(map[string]string),           //Flag key, Flag value
+		FlagsFn:      make(map[string]map[string]*Flag), //function, FlagName, AllFlag
+		FnExecutable: make(map[string]fnCommand),        //Function Name, That function
 	}
 }
 
 func (f *FExecutable) AddCommand(command string, fn fnCommand, flags ...*Flag) {
-	f.FlagsFn[command], f.FnExecutable[command] = flags, fn
+	f.FnExecutable[command] = fn
+	f.FlagsFn[command] = make(map[string]*Flag, len(flags))
+
+	for _, value := range flags {
+		f.FlagsFn[command][value.Name] = value
+	}
 }
 
 // ovo je jedna te ista komanda, ali valjda je vako ljepse za napisati, tako su developeri koju su pravili flag package napisali slicno
-func AddCommand(command string, fn fnCommand, flags ...*Flag) {
-	Executable.AddCommand(command, fn, flags...)
+func CommandLineFunction(key string, fn fnCommand, flags ...*Flag) {
+	Executable.AddCommand(key, fn, flags...)
 }
 
 // ===============================================================================
 func (f *FExecutable) Parser() {
 	arguments := os.Args
-	f.Args = arguments[2:]
+	f.Args = Convert(arguments[2:])
 	f.FnExecutable[arguments[1]]()
 }
 
@@ -77,8 +82,18 @@ func Parser() {
 
 // ===============================================================================
 
-func Commit() {
-	//c,i := parser()
+func Convert(args []string) map[string]string {
+	systemFlags := make(map[string]string)
 
-	fmt.Println(Executable.Args)
+	return systemFlags
+}
+
+// func GetFlag(name string) interface{} {
+// 	return Executable.Args[name]
+// }
+
+func Commit() {
+	// i := GetFlag("i")
+
+	// fmt.Println(i)
 }
