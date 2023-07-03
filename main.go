@@ -15,7 +15,7 @@ func main() {
 	Parser()
 }
 
-type fnCommand func([]string)
+type fnCommand func()
 
 type Flag struct {
 	Name     string
@@ -67,7 +67,7 @@ func AddCommand(command string, fn fnCommand, flags ...*Flag) {
 func (f *FExecutable) Parser() {
 	arguments := os.Args
 	f.Args = arguments[2:]
-	f.FnExecutable[arguments[1]](f.Args)
+	f.FnExecutable[arguments[1]]()
 }
 
 // manje koda za korisnika koji bude koristio ovaj tool, isti je kod, nema razlike
@@ -77,7 +77,7 @@ func Parser() {
 
 // ===============================================================================
 
-func Commit(args []string) {
+func Commit() {
 	//c,i := parser()
 
 	fmt.Println(Executable.Args)
