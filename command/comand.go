@@ -1,6 +1,8 @@
 package command
 
-import "os"
+import (
+	"os"
+)
 
 type fnCommand func()
 
@@ -60,11 +62,18 @@ func CommandLineFunction(key string, fn fnCommand, flags ...*Flag) {
 func (f *FExecutable) Parser() {
 	arguments := os.Args
 	f.Args = Convert(arguments[2:])
+
+	for key := range f.Args {
+		if _, ok := f.FlagsFn[arguments[1]][key]; !ok {
+			panic("Not true flags")
+		}
+	}
+
 	f.FnExecutable[arguments[1]]()
 }
 
 // manje koda za korisnika koji bude koristio ovaj tool, isti je kod, nema razlike
-func Parser() {
+func Parse() {
 	Executable.Parser()
 }
 
@@ -72,6 +81,24 @@ func Parser() {
 
 func Convert(args []string) map[string]string {
 	systemFlags := make(map[string]string)
+
+	index := 0
+	flag := ""
+	for index < len(args) {
+		if args[index][0] == '-' {
+			flag = args[index][1:]
+			value := ""
+
+			if index+1 < len(args) && args[index+1][0] != '-' {
+				value = args[index+1]
+				index++
+			}
+
+			systemFlags[flag] = value
+		}
+
+		index++
+	}
 
 	return systemFlags
 }

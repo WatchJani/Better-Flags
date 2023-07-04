@@ -1,8 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	clf "root/command" //Command Line Function
+	clf "root/command" //clf => Command Line Function
 )
 
 func main() {
@@ -12,7 +13,9 @@ func main() {
 	clf.CommandLineFunction("commit", Commit, FlagC, FlagI)
 	clf.CommandLineFunction("add", Commit, FlagC, FlagI)
 
-	clf.Parser()
+	flag.Parse()
+
+	clf.Parse()
 }
 
 func Commit() {
